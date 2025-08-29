@@ -34,6 +34,7 @@ exports.createCandidate = async (req, res) => {
 exports.getAllCandidates = async (req, res) => {
   try {
     const candidates = await Candidate.findAll();
+    console.log("candidate data getAll:", candidates);
     res.status(200).json(candidates);
   } catch (error) {
     console.error(error);
@@ -66,29 +67,32 @@ exports.getCandidateById = async (req, res) => {
 exports.updateCandidate = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Find candidate first
+    const candidate = await Candidate.findByPk(id);
+    if (!candidate) {
+      return res.status(404).json({ error: "Candidate not found" });
+    }
+
+    // If file uploaded, set image_path
     if (req.file) {
-      req.body.image_path = req.file.path; // Update image path if new file is uploaded
-    }
-    const [updated] = await Candidate.update(req.body, {
-      where: { id },
-    });
-
-    if (!updated) {
-      return res
-        .status(404)
-        .json({ error: "Candidate not found or no changes made" });
+      req.body.image_path = req.file.path;
+      console.log("controller: ", req.body.image_path);
     }
 
-    const updatedCandidate = await Candidate.findByPk(id);
+    // Update candidate
+    await candidate.update(req.body);
+
     res.status(200).json({
       message: "Candidate updated successfully",
-      candidate: updatedCandidate,
+      candidate,
     });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ error: "Failed to update candidate", details: error.message });
+    res.status(500).json({
+      error: "Failed to update candidate",
+      details: error.message,
+    });
   }
 };
 

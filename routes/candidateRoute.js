@@ -9,7 +9,7 @@ const {
 
 router.post(
   "/",
-  upload.single("image"),
+  upload.single("image_path"),
   validateCandidate,
   candidateController.createCandidate
 );
@@ -17,7 +17,7 @@ router.get("/", candidateController.getAllCandidates);
 router.get("/:id", candidateController.getCandidateById);
 router.put(
   "/:id",
-  upload.single("image"),
+  upload.single("image_path"),
   validateCandidateUpdate,
   candidateController.updateCandidate
 );
